@@ -3,71 +3,44 @@ import pickle
 import pandas as pd
 import requests
 import os
+import gdown  # Import gdown to download from Google Drive
 
-# TMDB API Key
-api = os.getenv("TMDB_API_KEY", "50a6e096ab32b0c22fd46acf52d9578c")
+# 🔹 Google Drive link for similarity.pkl
+GDRIVE_FILE_ID = "1z1Bg00HOpfmXnGaZ0zkJrJqLOevvoU59"
+GDRIVE_URL = f"https://drive.google.com/uc?export=download&id={GDRIVE_FILE_ID}"
 
-def fetch_poster(movie_id):
-    """Fetch movie poster from TMDB API."""
-    try:
-        url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={api}&language=en-US"
-        response = requests.get(url, timeout=10)
+# 🔹 Download similarity.pkl if not already present
+SIMILARITY_FILE = "similarity.pkl"
 
-        if response.status_code != 200:
-            return "https://via.placeholder.com/500x750?text=No+Image"
+if not os.path.exists(SIMILARITY_FILE):
+    st.info("Downloading similarity.pkl from Google Drive...")
+    gdown.download(GDRIVE_URL, SIMILARITY_FILE, quiet=False)
 
-        data = response.json()
-        if "poster_path" in data and data["poster_path"]:
-            return f"https://image.tmdb.org/t/p/w500{data['poster_path']}"
-        else:
-            return "https://via.placeholder.com/500x750?text=No+Image"
-
-    except requests.exceptions.RequestException:
-        return "https://via.placeholder.com/500x750?text=No+Image"
-
-# Correct Google Drive File ID for similarity.pkl
-SIMILARITY_FILE_ID = "1z1Bg00HOpfmXnGaZ0zkJrJqLOevvoU59"
-
-def download_similarity_file():
-    """Download similarity.pkl correctly from Google Drive."""
-    try:
-        gdrive_url = f"https://drive.google.com/uc?export=download&id={SIMILARITY_FILE_ID}"
-        response = requests.get(gdrive_url, stream=True)
-
-        if response.status_code == 200:
-            with open("similarity.pkl", "wb") as f:
-                for chunk in response.iter_content(1024):
-                    f.write(chunk)
-            return True
-        else:
-            st.error(f"❌ Failed to download similarity.pkl. Status Code: {response.status_code}")
-            return False
-
-    except Exception as e:
-        st.error(f"❌ Error downloading similarity.pkl: {e}")
-        return False
-
-# Load movie data
+# 🔹 Load movie data
 try:
     movies_dict = pickle.load(open('movie_dict.pkl', 'rb'))
     movies = pd.DataFrame(movies_dict)
-
-    # Download similarity.pkl if not available
-    if not os.path.exists("similarity.pkl"):
-        st.info("📥 Downloading similarity.pkl...")
-        if not download_similarity_file():
-            st.error("❌ Failed to download similarity.pkl. Please check your Google Drive link.")
-            st.stop()
-
-    with open("similarity.pkl", "rb") as f:
-        similarity = pickle.load(f)
-
+    similarity = pickle.load(open(SIMILARITY_FILE, 'rb'))
 except Exception as e:
-    st.error(f"❌ Error loading movie data: {e}")
+    st.error(f"Error loading movie data: {e}")
     st.stop()
 
+# 🔹 Function to fetch movie poster
+api = os.getenv("TMDB_API_KEY", "50a6e096ab32b0c22fd46acf52d9578c")
+
+def fetch_poster(movie_id):
+    try:
+        url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={api}&language=en-US"
+        response = requests.get(url, timeout=10)
+        if response.status_code != 200:
+            return "https://via.placeholder.com/500x750?text=No+Image"
+        data = response.json()
+        return f"https://image.tmdb.org/t/p/w500{data['poster_path']}" if data.get("poster_path") else "https://via.placeholder.com/500x750?text=No+Image"
+    except requests.exceptions.RequestException:
+        return "https://via.placeholder.com/500x750?text=No+Image"
+
+# 🔹 Recommendation Function
 def recommend(movie):
-    """Return recommended movies and their posters."""
     if movie not in movies['title'].values:
         return [], []
 
@@ -84,12 +57,11 @@ def recommend(movie):
             recommended_movies_posters.append(fetch_poster(movie_id))
 
         return recommended_movies, recommended_movies_posters
-
     except Exception as e:
-        st.error(f"❌ Error: {e}")
+        st.error(f"Error: {e}")
         return [], []
 
-# Streamlit UI
+# 🔹 Streamlit UI
 st.title('🎬 Movie Recommender System')
 
 selected_movie_name = st.selectbox("Which movie's recommendation do you want?", movies['title'].values)
@@ -98,10 +70,10 @@ if st.button('Recommend'):
     names, posters = recommend(selected_movie_name)
 
     if names:
-        cols = st.columns(len(names))  # Dynamically set columns
+        cols = st.columns(len(names))
         for i in range(len(names)):
             with cols[i]:
                 st.text(names[i])
                 st.image(posters[i])
     else:
-        st.warning("⚠️ No recommendations found. Try another movie.")
+        st.warning("No recommendations found. Try another movie.")
