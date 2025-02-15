@@ -25,19 +25,26 @@ def fetch_poster(movie_id):
     except requests.exceptions.RequestException:
         return "https://via.placeholder.com/500x750?text=No+Image"
 
-# Google Drive File ID for similarity.pkl
+# Correct Google Drive File ID for similarity.pkl
 SIMILARITY_FILE_ID = "1z1Bg00HOpfmXnGaZ0zkJrJqLOevvoU59"
 
 def download_similarity_file():
-    """Download similarity.pkl dynamically from Google Drive."""
-    url = f"https://drive.google.com/uc?id={SIMILARITY_FILE_ID}"
-    response = requests.get(url)
+    """Download similarity.pkl correctly from Google Drive."""
+    try:
+        gdrive_url = f"https://drive.google.com/uc?export=download&id={SIMILARITY_FILE_ID}"
+        response = requests.get(gdrive_url, stream=True)
 
-    if response.status_code == 200:
-        with open("similarity.pkl", "wb") as f:
-            f.write(response.content)
-        return True
-    else:
+        if response.status_code == 200:
+            with open("similarity.pkl", "wb") as f:
+                for chunk in response.iter_content(1024):
+                    f.write(chunk)
+            return True
+        else:
+            st.error(f"❌ Failed to download similarity.pkl. Status Code: {response.status_code}")
+            return False
+
+    except Exception as e:
+        st.error(f"❌ Error downloading similarity.pkl: {e}")
         return False
 
 # Load movie data
@@ -47,8 +54,9 @@ try:
 
     # Download similarity.pkl if not available
     if not os.path.exists("similarity.pkl"):
+        st.info("📥 Downloading similarity.pkl...")
         if not download_similarity_file():
-            st.error("❌ Failed to download similarity.pkl. Check your Google Drive link.")
+            st.error("❌ Failed to download similarity.pkl. Please check your Google Drive link.")
             st.stop()
 
     with open("similarity.pkl", "rb") as f:
