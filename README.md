@@ -4,7 +4,7 @@ This is a **Movie Recommendation System** built using **Streamlit** and **TMDb A
 - Dataset used here are TMDB-5000 movie and credits csv.
 
 # App Image
-![App-Image](mrs.jpg)
+![App-Image](mrs.png)
 
 # Live Demo
 [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://8ozcudekug3fhodqgjdxhy.streamlit.app/)
