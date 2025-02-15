@@ -1,7 +1,7 @@
 # 🎬 Movie Recommender System
 
 This is a **Movie Recommendation System** built using **Streamlit** and **TMDb API**. The app suggests movies based on similarity scores and displays their posters.
-# Dataset used here are TMDB-5000 Movie Dataset.
+- Dataset used here are TMDB-5000 movie and credits csv.
 
 # App Image
 ![App-Image](mrs.jpg)
