@@ -13,6 +13,7 @@ This is a **Movie Recommendation System** built using **Streamlit** and **TMDb A
 - Search for a movie and get recommendations.
 - Displays movie posters along with recommendations.
 - Uses **TMDb API** to fetch movie details.
+- Top 5 movies which are similar to the required movie have been recommended here.
 - Hosted on **Streamlit Cloud**.
 
 ## 📂 Files & Directories
