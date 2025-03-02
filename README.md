@@ -23,7 +23,7 @@ This is a **Movie Recommendation System** built using **Streamlit** and **TMDb A
 - `requirements.txt` → Dependencies for the app.
 - `setup.sh` → Configures Streamlit Cloud.
 - `Procfile` → For deployment on Streamlit Cloud.
-
+- `Hosted Platform` → Streamlit Cloud
 ## 🔧 Installation & Setup
 1. Clone the repository:
    ```sh
