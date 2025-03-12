@@ -30,6 +30,7 @@ api = os.getenv("TMDB_API_KEY", "50a6e096ab32b0c22fd46acf52d9578c")
 
 def fetch_poster(movie_id):
     try:
+        # Fetch the TMDB API for movie poster and details
         url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={api}&language=en-US"
         response = requests.get(url, timeout=10)
         if response.status_code != 200:
@@ -48,7 +49,7 @@ def recommend(movie):
         movie_index = movies[movies['title'] == movie].index[0]
         distances = similarity[movie_index]
         movies_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
-
+        
         recommended_movies = []
         recommended_movies_posters = []
         for i in movies_list:
