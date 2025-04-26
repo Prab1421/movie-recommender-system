@@ -60,6 +60,7 @@ This is a **Movie Recommendation System** built using **Streamlit** and **TMDb A
 - **Pandas & NumPy**
 - **TMDb API**
 - **Pickle** for storing precomputed similarity scores
+- **Pickle** for storing precomputed similarity scores
 
 ---
 🚀 **Enjoy Movie Recommendations!** 🎥🍿
