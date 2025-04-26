@@ -34,6 +34,7 @@ This is a **Movie Recommendation System** built using **Streamlit** and **TMDb A
 2. Create a virtual environment:
    ```sh
    python -m venv .venv
+   virtual environment has all the required package.
    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
    ```
 
