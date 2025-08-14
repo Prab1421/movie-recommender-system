@@ -3,22 +3,28 @@ import requests
 import os
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import ast
 
 # ===================== CONFIG =====================
-TMDB_API_KEY = os.getenv("TMDB_API_KEY", "50a6e096ab32b0c22fd46acf52d9578c")  # API key from environment
+TMDB_API_KEY = os.getenv("TMDB_API_KEY", "50a6e096ab32b0c22fd46acf52d9578c")
 BASE_URL = "https://api.themoviedb.org/3/movie"
-KAGGLE_DATA_PATH = "movies.csv"  # Kaggle dataset file
+MOVIES_FILE = "tmdb_5000_movies.csv"
+CREDITS_FILE = "tmdb_5000_credits.csv"
 OUTPUT_CLEAN_DATA = "movies_clean.csv"
 OUTPUT_SIM_MATRIX = "similarity_matrix.pkl"
-LIMIT_MOVIES = 100  # for demo / avoid API rate limits
+LIMIT_MOVIES = 100  # limit API calls to avoid hitting rate limit
 # ===================================================
 
 def extract_data():
-    """Extract from Kaggle CSV and TMDb API"""
-    print("Reading Kaggle dataset...")
-    df = pd.read_csv(KAGGLE_DATA_PATH)
+    """Extract from Kaggle CSVs and TMDb API"""
+    print("Reading Kaggle datasets...")
+    movies = pd.read_csv(MOVIES_FILE)
+    credits = pd.read_csv(CREDITS_FILE)
 
-    print("Fetching extra data from TMDb API...")
+    # Merge credits into movies on title
+    df = movies.merge(credits, on="title")
+
+    print("Fetching extra genres from TMDb API...")
     extra_genres = {}
     count = 0
     for movie_id in df['id']:
@@ -38,13 +44,18 @@ def extract_data():
             extra_genres[movie_id] = ""
         count += 1
 
-    # Add genres column to DataFrame
-    df['genres'] = df['id'].map(extra_genres)
+    # Add genres column (API overrides existing)
+    df['genres'] = df['id'].map(extra_genres).fillna(df['genres'])
     return df
 
 def transform_data(df):
     """Clean, combine features, and compute similarity"""
     print("Cleaning data...")
+
+    # Convert stringified lists to plain text if needed
+    if df['genres'].dtype == object and df['genres'].str.startswith('[').any():
+        df['genres'] = df['genres'].apply(lambda x: " ".join([i['name'] for i in ast.literal_eval(x)]) if pd.notnull(x) and x.startswith('[') else x)
+
     df['overview'] = df['overview'].fillna("")
     df['genres'] = df['genres'].fillna("")
 
