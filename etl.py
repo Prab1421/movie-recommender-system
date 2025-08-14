@@ -5,7 +5,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 # ===================== CONFIG =====================
-TMDB_API_KEY = os.getenv("TMDB_API_KEY")  # API key from environment
+TMDB_API_KEY = os.getenv("TMDB_API_KEY", "50a6e096ab32b0c22fd46acf52d9578c")  # API key from environment
 BASE_URL = "https://api.themoviedb.org/3/movie"
 KAGGLE_DATA_PATH = "movies.csv"  # Kaggle dataset file
 OUTPUT_CLEAN_DATA = "movies_clean.csv"
